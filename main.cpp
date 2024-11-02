@@ -2,6 +2,20 @@
 
 const char kWindowTitle[] = "TD1_02";
 
+typedef struct Vector2
+{
+	float x;
+	float y;
+}Vector2;
+
+typedef struct Enemy
+{
+	Vector2 pos;
+	float speed;
+	float radius;
+	int isAlive;
+}Enemy;
+
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
