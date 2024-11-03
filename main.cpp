@@ -1,6 +1,6 @@
 #include <Novice.h>
 
-const char kWindowTitle[] = "LC1C_07_コイズミリョウ_タイトル";
+const char kWindowTitle[] = "TD1_2";
 const int kWindowWidth = 1280;
 const int kWindowHeight = 720;
 
@@ -34,6 +34,83 @@ typedef struct Player {
 	int hitTimer;
 } Player;
 
+// ボス
+typedef struct Boss {
+	Vector2 pos;
+	//float speed;
+	float radius;
+	int isAlive;
+	//int phase;
+	//float hp;
+}Boss;
+
+// ボスの向き
+enum BossDirection {
+	PLAYER_LEFT,
+	PLAYER_RIGHT
+};
+
+// ボスの段階
+enum Phase {
+	PHASE1,
+	PHASE2,
+	PHASE3
+};
+
+/// <summary>
+/// 横振りの攻撃関数
+/// </summary>
+/// <param name="boss">ボスの構造体</param>
+/// <param name="player">プレイヤーの構造体</param>
+/*void Attack_Horizontal_Swing(Boss& boss, Player& player) {
+	// 横振り攻撃の処理
+}
+
+/// <summary>
+/// 縦振りの関数
+/// </summary>
+/// <param name="boss">ボスの構造体</param>
+/// <param name="player">プレイヤーの構造体</param>
+void Attack_Vertical_Swing(Boss& boss, Player& player) {
+	// 縦振り攻撃の処理
+}
+
+/// <summary>
+/// 剣の召喚攻撃関数
+/// </summary>
+/// <param name="boss">ボスの構造体</param>
+/// <param name="player">プレイヤーの構造体</param>
+void Attack_Sword_Summon(Boss& boss, Player& player) {
+
+}
+
+/// <summary>
+/// ボスのメインループ関数
+/// </summary>
+/// <param name="boss">ボスの構造体</param>
+/// <param name="player">プレイヤーの構造体</param>
+void Boss_AI(Boss& boss, Player& player) {
+	Phase cuurentPhase = PHASE1;
+	switch (cuurentPhase)
+	{
+	case PHASE1:
+		if (boss.hp > 70) {
+
+
+		}
+
+		break;
+
+	case PHASE2:
+
+		break;
+
+	case PHASE3:
+
+		break;
+	}
+}*/
+
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
@@ -65,6 +142,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	int playerDirection = RIGHT;
 
+	// ボスの変数
+	Boss boss;
+	boss.pos.x = 1100.0f;
+	boss.pos.y = 500.0f;
+	boss.radius = 72.0f;
+	boss.isAlive = true;
+
+	BossDirection bossDirection = PLAYER_LEFT;
+
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
 		// フレームの開始
@@ -82,6 +168,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		if (keys[DIK_A]) {
 			playerDirection = LEFT;
+
 			if (player.worldPos.x > 0.0f + 128.0f / 2.0f) {
 				player.worldPos.x -= player.speed;
 			}
@@ -94,6 +181,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		if (keys[DIK_D]) {
 			playerDirection = RIGHT;
+
 			if (player.worldPos.x <= 6272.0f + 128.0f / 2.0f) {
 				player.worldPos.x += player.speed;
 			}
@@ -116,6 +204,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		// ジャンプ中の動作(落下)
 		if (player.isJump) {
 			player.jump += 0.5f;
+
 			player.worldPos.y += player.jump;
 			if (player.worldPos.y >= 536.0f) {
 				player.worldPos.y = 536.0f;
@@ -124,6 +213,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 		}
 
+
+		if (boss.isAlive) {
+			if (boss.pos.x < player.worldPos.x) {
+				bossDirection = PLAYER_RIGHT;
+			}
+
+			if (boss.pos.x > player.worldPos.x) {
+				bossDirection = PLAYER_LEFT;
+			}
+		}
 
 
 		///
@@ -139,12 +238,36 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		// 自機の描画
 		if (playerDirection == RIGHT) {
 			Novice::DrawBox(static_cast<int>(player.worldPos.x - 128.0f / 2.0f),
-				static_cast<int>(player.worldPos.y), static_cast<int>(player.radius), static_cast<int>(player.radius), 0.0f, RED, kFillModeSolid);
+				static_cast<int>(player.worldPos.y), 
+				static_cast<int>(player.radius), 
+				static_cast<int>(player.radius), 
+				0.0f, RED, kFillModeSolid);
 		}
 
 		if (playerDirection == LEFT) {
 			Novice::DrawBox(static_cast<int>(player.worldPos.x - 128.0f / 2.0f),
-				static_cast<int>(player.worldPos.y), static_cast<int>(player.radius), static_cast<int>(player.radius), 0.0f, RED, kFillModeSolid);
+				static_cast<int>(player.worldPos.y), 
+				static_cast<int>(player.radius), 
+				static_cast<int>(player.radius), 
+				0.0f, RED, kFillModeSolid);
+		}
+
+		if (boss.isAlive) {
+			if (bossDirection == PLAYER_LEFT) {
+				Novice::DrawEllipse(static_cast<int>(boss.pos.x),
+					static_cast<int>(boss.pos.y),
+					static_cast<int>(boss.radius),
+					static_cast<int>(boss.radius),
+					0.0f, BLACK, kFillModeSolid);
+			}
+
+			if (bossDirection == PLAYER_RIGHT) {
+				Novice::DrawEllipse(static_cast<int>(boss.pos.x),
+					static_cast<int>(boss.pos.y),
+					static_cast<int>(boss.radius),
+					static_cast<int>(boss.radius),
+					0.0f, BLACK, kFillModeSolid);
+			}
 		}
 
 		///
