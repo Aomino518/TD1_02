@@ -53,6 +53,15 @@ typedef struct Slash {
 	int slashRight;
 }Slash;
 
+typedef struct ShockWave {
+	Vector2 pos;
+	float radius;
+	int isShockWave;
+	float speed;
+	int ShockWaveLeft;
+	int ShockWaveRight;
+}ShockWave;
+
 // ボスの向き
 enum BossDirection {
 	PLAYER_LEFT,
@@ -66,7 +75,7 @@ enum Phase {
 	PHASE3
 };
 
-void SpawnSlash(Boss& boss, Slash& slash, BossDirection direction) {
+void HorizontalSwing_SpawnSlash(Boss& boss, Slash& slash, BossDirection direction) {
 	slash.isSlash = true;
 	slash.pos.y = boss.pos.y;
 
@@ -78,6 +87,24 @@ void SpawnSlash(Boss& boss, Slash& slash, BossDirection direction) {
 		slash.pos.x = boss.pos.x + 80.0f;
 		slash.slashRight = true;
 	}
+}
+
+void VerticalSwing_SpawnShockWave(Boss& boss, ShockWave* shockWave, BossDirection direction) {
+	for (int i = 0; i < 3; i++) {
+		shockWave[i].isShockWave = true;
+
+		if (direction == PLAYER_LEFT) {
+			shockWave[i].pos.x = boss.pos.x - i * 80.0f;
+			shockWave[i].pos.y = 555.0f;
+			shockWave[i].ShockWaveLeft = true;
+		}
+		else if (direction == PLAYER_RIGHT) {
+			shockWave[i].pos.x = boss.pos.x + i * 80.0f;
+			shockWave[i].pos.y = 555.0f;
+			shockWave[i].ShockWaveRight = true;
+		}
+	}
+
 }
 
 /// <summary>
@@ -104,12 +131,28 @@ void HorizontalSwing_SlashMove(Slash& slash) {
 }
 
 /// <summary>
-/// 縦振りの関数
+/// 縦振りの衝撃波を関数
 /// </summary>
 /// <param name="boss">ボスの構造体</param>
 /// <param name="player">プレイヤーの構造体</param>
-/*void Attack_Vertical_Swing(Boss& boss, Player& player) {
+void VerticalSwing_ShockWaveMove(ShockWave* shockWave) {
 	// 縦振り攻撃の処理
+	for (int i = 0; i < 3; i++) {
+		if (shockWave[i].isShockWave) {
+			if (shockWave[i].ShockWaveLeft) {
+				shockWave[i].pos.x -= shockWave[i].speed;
+			}
+			else if (shockWave[i].ShockWaveRight) {
+				shockWave[i].pos.x += shockWave[i].speed;
+			}
+
+			if (shockWave[i].pos.x < 0.0f || shockWave[i].pos.x > 1280.0f) {
+				shockWave[i].isShockWave = false;
+				shockWave[i].ShockWaveLeft = false;
+				shockWave[i].ShockWaveRight = false;
+			}
+		}
+	}
 }
 
 /// <summary>
@@ -117,7 +160,7 @@ void HorizontalSwing_SlashMove(Slash& slash) {
 /// </summary>
 /// <param name="boss">ボスの構造体</param>
 /// <param name="player">プレイヤーの構造体</param>
-void Attack_Sword_Summon(Boss& boss, Player& player) {
+/*void Attack_Sword_Summon(Boss& boss, Player& player) {
 
 }
 
@@ -195,6 +238,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	slash.radius = 60.0f;
 	slash.speed = 8.0f;
 	slash.isSlash = false;
+
+	ShockWave shockwave[3]{};
+	for (int i = 0; i < 3; i++) {
+		shockwave[i].pos.x = 0.0f;
+		shockwave[i].pos.y = 0.0f;
+		shockwave[i].radius = 20.0f;
+		shockwave[i].speed = 5.0f;
+		shockwave[i].isShockWave = false;
+		shockwave[i].ShockWaveLeft = false;
+		shockwave[i].ShockWaveRight = false;
+	}
 
 	int frameCount = 0;
 
@@ -275,10 +329,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 		if (frameCount == 300) {
-			SpawnSlash(boss, slash, bossDirection);
+				VerticalSwing_SpawnShockWave(boss, shockwave, bossDirection);
 		}
 
-		HorizontalSwing_SlashMove(slash);
+		VerticalSwing_ShockWaveMove(shockwave);
 
 		///
 		/// ↑更新処理ここまで
@@ -325,12 +379,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 		}
 
-		if (slash.isSlash) {
-			Novice::DrawEllipse(static_cast<int>(slash.pos.x),
-				static_cast<int>(slash.pos.y),
-				static_cast<int>(slash.radius - 50.0f),
-				static_cast<int>(slash.radius),
-				0.0f, WHITE, kFillModeSolid);
+		for (int i = 0; i < 3; i++) {
+			if (shockwave[i].isShockWave) {
+				Novice::DrawEllipse(static_cast<int>(shockwave[i].pos.x),
+					static_cast<int>(shockwave[i].pos.y),
+					static_cast<int>(shockwave[i].radius + i * 10.0f),
+					static_cast<int>(shockwave[i].radius + i * 10.0f),
+					0.0f, WHITE, kFillModeSolid);
+			}
 		}
 
 		///
