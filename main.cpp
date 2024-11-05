@@ -41,8 +41,17 @@ typedef struct Boss {
 	float radius;
 	int isAlive;
 	//int phase;
-	//float hp;
+	int hp;
 }Boss;
+
+typedef struct Slash {
+	Vector2 pos;
+	float radius;
+	int isSlash;
+	float speed;
+	int slashLeft;
+	int slashRight;
+}Slash;
 
 // ボスの向き
 enum BossDirection {
@@ -57,13 +66,41 @@ enum Phase {
 	PHASE3
 };
 
+void SpawnSlash(Boss& boss, Slash& slash, BossDirection direction) {
+	slash.isSlash = true;
+	slash.pos.y = boss.pos.y;
+
+	if (direction == PLAYER_LEFT) {
+		slash.pos.x = boss.pos.x - 80.0f;
+		slash.slashLeft = true;
+	}
+	else if (direction == PLAYER_RIGHT) {
+		slash.pos.x = boss.pos.x + 80.0f;
+		slash.slashRight = true;
+	}
+}
+
 /// <summary>
 /// 横振りの攻撃関数
 /// </summary>
 /// <param name="boss">ボスの構造体</param>
 /// <param name="player">プレイヤーの構造体</param>
-/*void Attack_Horizontal_Swing(Boss& boss, Player& player) {
+void SlashMove(Slash& slash) {
 	// 横振り攻撃の処理
+	if (slash.isSlash) {
+		if (slash.slashLeft) {
+			slash.pos.x -= slash.speed;
+		}
+		else if (slash.slashRight) {
+			slash.pos.x += slash.speed;
+		}
+
+		if (slash.pos.x < 0.0f || slash.pos.x > 1280.0f) {
+			slash.isSlash = false;
+			slash.slashLeft = false;
+			slash.slashRight = false;
+		}
+	}
 }
 
 /// <summary>
@@ -71,7 +108,7 @@ enum Phase {
 /// </summary>
 /// <param name="boss">ボスの構造体</param>
 /// <param name="player">プレイヤーの構造体</param>
-void Attack_Vertical_Swing(Boss& boss, Player& player) {
+/*void Attack_Vertical_Swing(Boss& boss, Player& player) {
 	// 縦振り攻撃の処理
 }
 
@@ -143,13 +180,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int playerDirection = RIGHT;
 
 	// ボスの変数
-	Boss boss;
-	boss.pos.x = 1100.0f;
+	Boss boss{};
+	boss.pos.x = 700.0f;
 	boss.pos.y = 500.0f;
 	boss.radius = 72.0f;
 	boss.isAlive = true;
+	boss.hp = 100;
 
 	BossDirection bossDirection = PLAYER_LEFT;
+
+	Slash slash{};
+	slash.pos.x = 0.0f;
+	slash.pos.y = 0.0f;
+	slash.radius = 60.0f;
+	slash.speed = 8.0f;
+	slash.isSlash = false;
+
+	int frameCount = 0;
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -163,6 +210,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓更新処理ここから
 		///
+
+		frameCount++;
 
 		// 自機の移動処理
 
@@ -225,6 +274,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 
 
+		if (frameCount == 300) {
+			SpawnSlash(boss, slash, bossDirection);
+		}
+
+		SlashMove(slash);
+
 		///
 		/// ↑更新処理ここまで
 		///
@@ -268,6 +323,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					static_cast<int>(boss.radius),
 					0.0f, BLACK, kFillModeSolid);
 			}
+		}
+
+		if (slash.isSlash) {
+			Novice::DrawEllipse(static_cast<int>(slash.pos.x),
+				static_cast<int>(slash.pos.y),
+				static_cast<int>(slash.radius - 50.0f),
+				static_cast<int>(slash.radius),
+				0.0f, WHITE, kFillModeSolid);
 		}
 
 		///
