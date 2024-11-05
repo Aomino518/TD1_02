@@ -81,11 +81,11 @@ void SpawnSlash(Boss& boss, Slash& slash, BossDirection direction) {
 }
 
 /// <summary>
-/// 横振りの攻撃関数
+/// 横振りの斬撃を動かす関数
 /// </summary>
 /// <param name="boss">ボスの構造体</param>
 /// <param name="player">プレイヤーの構造体</param>
-void SlashMove(Slash& slash) {
+void HorizontalSwing_SlashMove(Slash& slash) {
 	// 横振り攻撃の処理
 	if (slash.isSlash) {
 		if (slash.slashLeft) {
@@ -278,7 +278,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			SpawnSlash(boss, slash, bossDirection);
 		}
 
-		SlashMove(slash);
+		HorizontalSwing_SlashMove(slash);
 
 		///
 		/// ↑更新処理ここまで
