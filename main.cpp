@@ -327,12 +327,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 		}
 
-
-		if (frameCount == 300) {
-				VerticalSwing_SpawnShockWave(boss, shockwave, bossDirection);
+		if (frameCount == 300)
+		{
+			HorizontalSwing_SpawnSlash(boss, slash, bossDirection);
 		}
-
-		VerticalSwing_ShockWaveMove(shockwave);
+		
+		HorizontalSwing_SlashMove(slash);
 
 		///
 		/// ↑更新処理ここまで
@@ -379,7 +379,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 		}
 
-		for (int i = 0; i < 3; i++) {
+
+		// 横振りの描画
+		if (slash.isSlash) {
+				Novice::DrawEllipse(static_cast<int>(slash.pos.x),
+					static_cast<int>(slash.pos.y),
+					static_cast<int>(slash.radius - 30.0f),
+					static_cast<int>(slash.radius),
+					0.0f, WHITE, kFillModeSolid);
+		}
+
+		// 縦振りの描画
+		/*for (int i = 0; i < 3; i++) {
 			if (shockwave[i].isShockWave) {
 				Novice::DrawEllipse(static_cast<int>(shockwave[i].pos.x),
 					static_cast<int>(shockwave[i].pos.y),
@@ -387,7 +398,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					static_cast<int>(shockwave[i].radius + i * 10.0f),
 					0.0f, WHITE, kFillModeSolid);
 			}
-		}
+		}*/
 
 		///
 		/// ↑描画処理ここまで
